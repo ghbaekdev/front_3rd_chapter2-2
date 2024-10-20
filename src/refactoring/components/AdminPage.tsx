@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import { Coupon, Product } from '../../../types.ts';
-import AdminProductForm from './Product/AdminProductForm.tsx';
-import AdminProductList from './Product/AdminProductList.tsx';
-import AdminCouponForm from './Coupon/AdminCouponForm.tsx';
-import AdminCouponList from './Coupon/AdminCouponList.tsx';
+import { Coupon, Product } from '../../types.ts';
+import AdminProductForm from './Admin/Product/AdminProductForm.tsx';
+import AdminProductList from './Admin/Product/AdminProductList.tsx';
+import AdminCouponForm from './Admin/Coupon/AdminCouponForm.tsx';
+import AdminCouponList from './Admin/Coupon/AdminCouponList.tsx';
 
 interface Props {
   products: Product[];
