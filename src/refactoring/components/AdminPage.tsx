@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Coupon, Discount, Product } from '../../types';
+import useForm from '../hooks/useForm';
 
 interface Props {
   products: Product[];
@@ -8,6 +9,20 @@ interface Props {
   onProductAdd: (newProduct: Product) => void;
   onCouponAdd: (newCoupon: Coupon) => void;
 }
+
+const initialCouponState: Coupon = {
+  name: '',
+  code: '',
+  discountType: 'percentage',
+  discountValue: 0,
+};
+
+const initialProductState: Omit<Product, 'id'> = {
+  name: '',
+  price: 0,
+  stock: 0,
+  discounts: [],
+};
 
 export const AdminPage = ({
   products,
@@ -22,19 +37,21 @@ export const AdminPage = ({
     quantity: 0,
     rate: 0,
   });
-  const [newCoupon, setNewCoupon] = useState<Coupon>({
-    name: '',
-    code: '',
-    discountType: 'percentage',
-    discountValue: 0,
-  });
+
+  const {
+    formState: newCoupon,
+    handleInputChange: handleCouponInputChange,
+    handleSelectChange: handleCouponSelectChange,
+    resetForm: resetCouponForm,
+  } = useForm(initialCouponState);
+
+  const {
+    formState: newProduct,
+    handleInputChange: handleProductInputChange,
+    resetForm: resetProductForm,
+  } = useForm(initialProductState);
+
   const [showNewProductForm, setShowNewProductForm] = useState(false);
-  const [newProduct, setNewProduct] = useState<Omit<Product, 'id'>>({
-    name: '',
-    price: 0,
-    stock: 0,
-    discounts: [],
-  });
 
   const toggleProductAccordion = (productId: string) => {
     setOpenProductIds((prev) => {
@@ -113,23 +130,13 @@ export const AdminPage = ({
 
   const handleAddCoupon = () => {
     onCouponAdd(newCoupon);
-    setNewCoupon({
-      name: '',
-      code: '',
-      discountType: 'percentage',
-      discountValue: 0,
-    });
+    resetCouponForm();
   };
 
   const handleAddNewProduct = () => {
     const productWithId = { ...newProduct, id: Date.now().toString() };
     onProductAdd(productWithId);
-    setNewProduct({
-      name: '',
-      price: 0,
-      stock: 0,
-      discounts: [],
-    });
+    resetProductForm();
     setShowNewProductForm(false);
   };
 
@@ -157,11 +164,10 @@ export const AdminPage = ({
                 </label>
                 <input
                   id="productName"
+                  name="name"
                   type="text"
                   value={newProduct.name}
-                  onChange={(e) =>
-                    setNewProduct({ ...newProduct, name: e.target.value })
-                  }
+                  onChange={handleProductInputChange}
                   className="w-full p-2 border rounded"
                 />
               </div>
@@ -174,14 +180,10 @@ export const AdminPage = ({
                 </label>
                 <input
                   id="productPrice"
+                  name="price"
                   type="number"
                   value={newProduct.price}
-                  onChange={(e) =>
-                    setNewProduct({
-                      ...newProduct,
-                      price: parseInt(e.target.value),
-                    })
-                  }
+                  onChange={handleProductInputChange}
                   className="w-full p-2 border rounded"
                 />
               </div>
@@ -194,14 +196,10 @@ export const AdminPage = ({
                 </label>
                 <input
                   id="productStock"
+                  name="stock"
                   type="number"
                   value={newProduct.stock}
-                  onChange={(e) =>
-                    setNewProduct({
-                      ...newProduct,
-                      stock: parseInt(e.target.value),
-                    })
-                  }
+                  onChange={handleProductInputChange}
                   className="w-full p-2 border rounded"
                 />
               </div>
@@ -367,47 +365,37 @@ export const AdminPage = ({
           <div className="bg-white p-4 rounded shadow">
             <div className="space-y-2 mb-4">
               <input
+                name="name"
                 type="text"
                 placeholder="쿠폰 이름"
                 value={newCoupon.name}
-                onChange={(e) =>
-                  setNewCoupon({ ...newCoupon, name: e.target.value })
-                }
+                onChange={handleCouponInputChange}
                 className="w-full p-2 border rounded"
               />
               <input
+                name="code"
                 type="text"
                 placeholder="쿠폰 코드"
                 value={newCoupon.code}
-                onChange={(e) =>
-                  setNewCoupon({ ...newCoupon, code: e.target.value })
-                }
+                onChange={handleCouponInputChange}
                 className="w-full p-2 border rounded"
               />
               <div className="flex gap-2">
                 <select
+                  name="discountType"
                   value={newCoupon.discountType}
-                  onChange={(e) =>
-                    setNewCoupon({
-                      ...newCoupon,
-                      discountType: e.target.value as 'amount' | 'percentage',
-                    })
-                  }
+                  onChange={handleCouponSelectChange}
                   className="w-full p-2 border rounded"
                 >
                   <option value="amount">금액(원)</option>
                   <option value="percentage">할인율(%)</option>
                 </select>
                 <input
+                  name="discountValue"
                   type="number"
                   placeholder="할인 값"
                   value={newCoupon.discountValue}
-                  onChange={(e) =>
-                    setNewCoupon({
-                      ...newCoupon,
-                      discountValue: parseInt(e.target.value),
-                    })
-                  }
+                  onChange={handleCouponInputChange}
                   className="w-full p-2 border rounded"
                 />
               </div>
