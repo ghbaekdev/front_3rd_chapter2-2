@@ -4,7 +4,10 @@ export const calculateItemTotal = (item: CartItem) => {
   const { product, quantity } = item;
   const { price } = product;
 
-  return price * quantity;
+  const discount = getMaxApplicableDiscount(item);
+  const discountedPrice = price * (1 - discount);
+
+  return discountedPrice * quantity;
 };
 
 export const getMaxApplicableDiscount = (item: CartItem) => {
@@ -25,23 +28,37 @@ export const calculateCartTotal = (
   cart: CartItem[],
   selectedCoupon: Coupon | null
 ) => {
-  const totalBeforeDiscount = cart.reduce(
-    (total, item) => total + calculateItemTotal(item),
-    0
-  );
+  let totalBeforeDiscount = 0;
+  let totalAfterDiscount = 0;
 
-  let totalDiscount = 0;
-  let totalAfterDiscount = totalBeforeDiscount;
+  cart.forEach((item) => {
+    const { price } = item.product;
+    const { quantity } = item;
+    totalBeforeDiscount += price * quantity;
 
+    const discount = item.product.discounts.reduce((maxDiscount, d) => {
+      return quantity >= d.quantity && d.rate > maxDiscount
+        ? d.rate
+        : maxDiscount;
+    }, 0);
+
+    totalAfterDiscount += price * quantity * (1 - discount);
+  });
+
+  let totalDiscount = totalBeforeDiscount - totalAfterDiscount;
+
+  // 쿠폰 적용
   if (selectedCoupon) {
-    if (selectedCoupon.type === 'amount') {
-      totalDiscount = Math.min(selectedCoupon.value, totalBeforeDiscount);
-    } else if (selectedCoupon.type === 'percentage') {
-      totalDiscount = (totalBeforeDiscount * selectedCoupon.value) / 100;
+    if (selectedCoupon.discountType === 'amount') {
+      totalAfterDiscount = Math.max(
+        0,
+        totalAfterDiscount - selectedCoupon.discountValue
+      );
+    } else {
+      totalAfterDiscount *= 1 - selectedCoupon.discountValue / 100;
     }
-    totalAfterDiscount = totalBeforeDiscount - totalDiscount;
+    totalDiscount = totalBeforeDiscount - totalAfterDiscount;
   }
-
   return {
     totalBeforeDiscount,
     totalAfterDiscount,
