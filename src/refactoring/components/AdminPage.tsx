@@ -1,6 +1,9 @@
-import { useState } from 'react';
-import { Coupon, Discount, Product } from '../../types';
-import useForm from '../hooks/useForm';
+import { useState } from "react";
+import { Coupon, Discount, Product } from "../../types";
+import ProductForm from "./Admin/ProductForm";
+import DiscountCard from "./Admin/DiscountCard";
+import CouponForm from "./Admin/CouponForm";
+import CouponList from "./Admin/CouponList";
 
 interface Props {
   products: Product[];
@@ -9,20 +12,6 @@ interface Props {
   onProductAdd: (newProduct: Product) => void;
   onCouponAdd: (newCoupon: Coupon) => void;
 }
-
-const initialCouponState: Coupon = {
-  name: '',
-  code: '',
-  discountType: 'percentage',
-  discountValue: 0,
-};
-
-const initialProductState: Omit<Product, 'id'> = {
-  name: '',
-  price: 0,
-  stock: 0,
-  discounts: [],
-};
 
 export const AdminPage = ({
   products,
@@ -37,19 +26,6 @@ export const AdminPage = ({
     quantity: 0,
     rate: 0,
   });
-
-  const {
-    formState: newCoupon,
-    handleInputChange: handleCouponInputChange,
-    handleSelectChange: handleCouponSelectChange,
-    resetForm: resetCouponForm,
-  } = useForm(initialCouponState);
-
-  const {
-    formState: newProduct,
-    handleInputChange: handleProductInputChange,
-    resetForm: resetProductForm,
-  } = useForm(initialProductState);
 
   const [showNewProductForm, setShowNewProductForm] = useState(false);
 
@@ -128,15 +104,13 @@ export const AdminPage = ({
     }
   };
 
-  const handleAddCoupon = () => {
+  const handleAddCoupon = (newCoupon: Coupon) => {
     onCouponAdd(newCoupon);
-    resetCouponForm();
   };
 
-  const handleAddNewProduct = () => {
+  const handleAddNewProduct = (newProduct: Product) => {
     const productWithId = { ...newProduct, id: Date.now().toString() };
     onProductAdd(productWithId);
-    resetProductForm();
     setShowNewProductForm(false);
   };
 
@@ -150,66 +124,10 @@ export const AdminPage = ({
             onClick={() => setShowNewProductForm(!showNewProductForm)}
             className="bg-green-500 text-white px-4 py-2 rounded mb-4 hover:bg-green-600"
           >
-            {showNewProductForm ? '취소' : '새 상품 추가'}
+            {showNewProductForm ? "취소" : "새 상품 추가"}
           </button>
           {showNewProductForm && (
-            <div className="bg-white p-4 rounded shadow mb-4">
-              <h3 className="text-xl font-semibold mb-2">새 상품 추가</h3>
-              <div className="mb-2">
-                <label
-                  htmlFor="productName"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  상품명
-                </label>
-                <input
-                  id="productName"
-                  name="name"
-                  type="text"
-                  value={newProduct.name}
-                  onChange={handleProductInputChange}
-                  className="w-full p-2 border rounded"
-                />
-              </div>
-              <div className="mb-2">
-                <label
-                  htmlFor="productPrice"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  가격
-                </label>
-                <input
-                  id="productPrice"
-                  name="price"
-                  type="number"
-                  value={newProduct.price}
-                  onChange={handleProductInputChange}
-                  className="w-full p-2 border rounded"
-                />
-              </div>
-              <div className="mb-2">
-                <label
-                  htmlFor="productStock"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  재고
-                </label>
-                <input
-                  id="productStock"
-                  name="stock"
-                  type="number"
-                  value={newProduct.stock}
-                  onChange={handleProductInputChange}
-                  className="w-full p-2 border rounded"
-                />
-              </div>
-              <button
-                onClick={handleAddNewProduct}
-                className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
-              >
-                추가
-              </button>
-            </div>
+            <ProductForm handleAddNewProduct={handleAddNewProduct} />
           )}
           <div className="space-y-2">
             {products.map((product, index) => (
@@ -282,7 +200,7 @@ export const AdminPage = ({
                               className="flex justify-between items-center mb-2"
                             >
                               <span>
-                                {discount.quantity}개 이상 구매 시{' '}
+                                {discount.quantity}개 이상 구매 시{" "}
                                 {discount.rate * 100}% 할인
                               </span>
                               <button
@@ -338,12 +256,7 @@ export const AdminPage = ({
                     ) : (
                       <div>
                         {product.discounts.map((discount, index) => (
-                          <div key={index} className="mb-2">
-                            <span>
-                              {discount.quantity}개 이상 구매 시{' '}
-                              {discount.rate * 100}% 할인
-                            </span>
-                          </div>
+                          <DiscountCard discount={discount} key={index} />
                         ))}
                         <button
                           data-testid="modify-button"
@@ -363,67 +276,8 @@ export const AdminPage = ({
         <div>
           <h2 className="text-2xl font-semibold mb-4">쿠폰 관리</h2>
           <div className="bg-white p-4 rounded shadow">
-            <div className="space-y-2 mb-4">
-              <input
-                name="name"
-                type="text"
-                placeholder="쿠폰 이름"
-                value={newCoupon.name}
-                onChange={handleCouponInputChange}
-                className="w-full p-2 border rounded"
-              />
-              <input
-                name="code"
-                type="text"
-                placeholder="쿠폰 코드"
-                value={newCoupon.code}
-                onChange={handleCouponInputChange}
-                className="w-full p-2 border rounded"
-              />
-              <div className="flex gap-2">
-                <select
-                  name="discountType"
-                  value={newCoupon.discountType}
-                  onChange={handleCouponSelectChange}
-                  className="w-full p-2 border rounded"
-                >
-                  <option value="amount">금액(원)</option>
-                  <option value="percentage">할인율(%)</option>
-                </select>
-                <input
-                  name="discountValue"
-                  type="number"
-                  placeholder="할인 값"
-                  value={newCoupon.discountValue}
-                  onChange={handleCouponInputChange}
-                  className="w-full p-2 border rounded"
-                />
-              </div>
-              <button
-                onClick={handleAddCoupon}
-                className="w-full bg-green-500 text-white p-2 rounded hover:bg-green-600"
-              >
-                쿠폰 추가
-              </button>
-            </div>
-            <div>
-              <h3 className="text-lg font-semibold mb-2">현재 쿠폰 목록</h3>
-              <div className="space-y-2">
-                {coupons.map((coupon, index) => (
-                  <div
-                    key={index}
-                    data-testid={`coupon-${index + 1}`}
-                    className="bg-gray-100 p-2 rounded"
-                  >
-                    {coupon.name} ({coupon.code}):
-                    {coupon.discountType === 'amount'
-                      ? `${coupon.discountValue}원`
-                      : `${coupon.discountValue}%`}{' '}
-                    할인
-                  </div>
-                ))}
-              </div>
-            </div>
+            <CouponForm handleAddCoupon={handleAddCoupon} />
+            <CouponList coupons={coupons} />
           </div>
         </div>
       </div>
