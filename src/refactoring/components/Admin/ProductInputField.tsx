@@ -8,7 +8,7 @@ interface ProductFormInputFieldProps {
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
-const ProductFormInputField = ({
+const ProductInputField = ({
   label,
   id,
   name,
@@ -32,4 +32,4 @@ const ProductFormInputField = ({
   );
 };
 
-export default ProductFormInputField;
+export default ProductInputField;

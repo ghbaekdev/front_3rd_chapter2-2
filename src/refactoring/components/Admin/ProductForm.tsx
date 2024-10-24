@@ -1,6 +1,6 @@
 import { Product } from "../../../types";
 import useForm from "../../hooks/useForm";
-import ProductFormInputField from "./ProductFormInputField";
+import ProductInputField from "./ProductInputField";
 
 const initialProductState: Omit<Product, "id"> = {
   name: "",
@@ -29,21 +29,21 @@ const ProductForm = ({ handleAddNewProduct }: ProductFormProps) => {
   return (
     <div className="bg-white p-4 rounded shadow mb-4">
       <h3 className="text-xl font-semibold mb-2">새 상품 추가</h3>
-      <ProductFormInputField
+      <ProductInputField
         id="productName"
         label="상품명"
         name="name"
         value={newProduct.name}
         onChange={handleProductInputChange}
       />
-      <ProductFormInputField
+      <ProductInputField
         id="productPrice"
         label="가격"
         name="price"
         value={newProduct.price}
         onChange={handleProductInputChange}
       />
-      <ProductFormInputField
+      <ProductInputField
         id="productStock"
         label="재고"
         name="stock"

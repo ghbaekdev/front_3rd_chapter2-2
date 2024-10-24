@@ -1,5 +1,6 @@
 import React from "react";
 import { Discount, Product } from "../../../types";
+import ProductEditInputField from "./ProductEditInputField";
 
 interface ProductEditFormProps {
   product: Product;
@@ -22,33 +23,30 @@ const ProductEditForm: React.FC<ProductEditFormProps> = ({
 }) => {
   return (
     <div>
-      <div className="mb-4">
-        <label className="block mb-1">상품명: </label>
-        <input
-          type="text"
-          value={product.name}
-          onChange={(e) => onUpdate({ name: e.target.value })}
-          className="w-full p-2 border rounded"
-        />
-      </div>
-      <div className="mb-4">
-        <label className="block mb-1">가격: </label>
-        <input
-          type="number"
-          value={product.price}
-          onChange={(e) => onUpdate({ price: parseInt(e.target.value) })}
-          className="w-full p-2 border rounded"
-        />
-      </div>
-      <div className="mb-4">
-        <label className="block mb-1">재고: </label>
-        <input
-          type="number"
-          value={product.stock}
-          onChange={(e) => onUpdate({ stock: parseInt(e.target.value) })}
-          className="w-full p-2 border rounded"
-        />
-      </div>
+      <ProductEditInputField
+        value={product.name}
+        onChange={onUpdate}
+        label="상품명"
+        id="productName"
+        name="name"
+        type="text"
+      />
+      <ProductEditInputField
+        value={product.price}
+        onChange={onUpdate}
+        label="가격"
+        id="productPrice"
+        name="price"
+        type="number"
+      />
+      <ProductEditInputField
+        value={product.stock}
+        onChange={onUpdate}
+        label="재고"
+        id="productStock"
+        name="stock"
+        type="number"
+      />
       <div>
         <h4 className="text-lg font-semibold mb-2">할인 정보</h4>
         {product.discounts.map((discount, index) => (
