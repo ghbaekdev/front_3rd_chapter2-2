@@ -1,5 +1,5 @@
 import { CartItem } from "../../../types";
-import { getAppliedDiscount } from "../../hooks/utils/discountUtils";
+import { getAppliedDiscount } from "../../../utils/discountUtils";
 
 interface CartCardProps {
   item: CartItem;

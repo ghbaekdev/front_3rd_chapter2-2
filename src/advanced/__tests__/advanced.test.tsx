@@ -1,16 +1,24 @@
 import { useState } from "react";
 import { describe, expect, test, vi } from "vitest";
-import { act, fireEvent, render, screen, within } from "@testing-library/react";
+import {
+  act,
+  fireEvent,
+  render,
+  renderHook,
+  screen,
+  within,
+} from "@testing-library/react";
 import { CartPage } from "../../refactoring/components/CartPage";
 import { AdminPage } from "../../refactoring/components/AdminPage";
 import { CartItem, Coupon, Product } from "../../types";
 import ProductForm from "../../refactoring/components/Admin/ProductForm";
 import CouponForm from "../../refactoring/components/Admin/CouponForm";
+import { useProductList } from "../../refactoring/hooks/useProductList";
 import {
   getAppliedDiscount,
   getMaxDiscount,
   getRemainingStock,
-} from "../../refactoring/hooks/utils/discountUtils";
+} from "../../utils/discountUtils";
 
 const mockProducts: Product[] = [
   {
@@ -369,5 +377,104 @@ describe("discountUtils 순수함수 테스트 > ", () => {
     };
     const cartItem: CartItem = { product: product, quantity: 7 };
     expect(getAppliedDiscount(cartItem)).toBe(0.05);
+  });
+});
+
+describe("useProductList 훅 테스트 > ", () => {
+  const mockProducts: Product[] = [
+    {
+      id: "p1",
+      name: "상품1",
+      price: 10000,
+      stock: 20,
+      discounts: [{ quantity: 10, rate: 0.1 }],
+    },
+    {
+      id: "p2",
+      name: "상품2",
+      price: 20000,
+      stock: 15,
+      discounts: [],
+    },
+  ];
+
+  const mockOnProductUpdate = vi.fn();
+
+  test("상품 아코디언 토글 기능", () => {
+    const { result } = renderHook(() =>
+      useProductList(mockProducts, mockOnProductUpdate)
+    );
+
+    act(() => {
+      result.current.toggleProductAccordion("p1");
+    });
+
+    expect(result.current.openProductIds.has("p1")).toBe(true);
+
+    act(() => {
+      result.current.toggleProductAccordion("p1");
+    });
+
+    expect(result.current.openProductIds.has("p1")).toBe(false);
+  });
+
+  test("상품 수정 기능", () => {
+    const { result } = renderHook(() =>
+      useProductList(mockProducts, mockOnProductUpdate)
+    );
+
+    act(() => {
+      result.current.handleEditProduct(mockProducts[0]);
+    });
+
+    expect(result.current.editingProduct).toEqual(mockProducts[0]);
+
+    act(() => {
+      result.current.handleProductUpdate("p1", { name: "수정된 상품1" });
+    });
+
+    expect(result.current.editingProduct?.name).toBe("수정된 상품1");
+
+    act(() => {
+      result.current.handleEditComplete();
+    });
+
+    expect(mockOnProductUpdate).toHaveBeenCalledWith({
+      ...mockProducts[0],
+      name: "수정된 상품1",
+    });
+    expect(result.current.editingProduct).toBeNull();
+  });
+
+  test("할인 추가 및 제거 기능", () => {
+    const { result } = renderHook(() =>
+      useProductList(mockProducts, mockOnProductUpdate)
+    );
+
+    act(() => {
+      result.current.handleEditProduct(mockProducts[1]);
+    });
+
+    act(() => {
+      result.current.setNewDiscount({ quantity: 5, rate: 0.05 });
+    });
+
+    act(() => {
+      result.current.handleAddDiscount("p2");
+    });
+
+    expect(mockOnProductUpdate).toHaveBeenCalledWith({
+      ...mockProducts[1],
+      discounts: [{ quantity: 5, rate: 0.05 }],
+    });
+
+    act(() => {
+      result.current.handleRemoveDiscount("p2", 0);
+    });
+
+    expect(mockOnProductUpdate).toHaveBeenCalledWith({
+      ...mockProducts[1],
+      discounts: [],
+    });
   });
 });

@@ -1,6 +1,9 @@
-import { useState } from 'react';
-import { CartItem, Coupon, Product } from '../../types';
-import { calculateCartTotal, updateCartItemQuantity } from './utils/cartUtils';
+import { useState } from "react";
+import { CartItem, Coupon, Product } from "../../types";
+import {
+  calculateCartTotal,
+  updateCartItemQuantity,
+} from "../../utils/cartUtils";
 
 export const useCart = () => {
   const [cart, setCart] = useState<CartItem[]>([]);

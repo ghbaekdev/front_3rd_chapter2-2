@@ -1,5 +1,5 @@
 import { CartItem, Product } from "../../../types";
-import { getRemainingStock } from "../../hooks/utils/discountUtils";
+import { getRemainingStock } from "../../../utils/discountUtils";
 import ProductCard from "./ProductCard";
 
 interface ProductListProps {

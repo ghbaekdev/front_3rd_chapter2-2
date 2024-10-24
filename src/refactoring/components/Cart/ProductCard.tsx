@@ -1,5 +1,5 @@
 import { Product } from "../../../types";
-import { getMaxDiscount } from "../../hooks/utils/discountUtils";
+import { getMaxDiscount } from "../../../utils/discountUtils";
 
 interface ProductCardProps {
   product: Product;
